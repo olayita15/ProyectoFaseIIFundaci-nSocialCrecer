@@ -67,5 +67,50 @@ router.post('/neo4j_post_mother', async function (req, res, next) {
 });
 
 
+router.put('/neo4j_update_mother', async function (req, res, next) {
+    // Obtener parámetros del cuerpo de la solicitud POST
+    const {
+        motherDocumentType,
+        motherDocumentNumber,
+        motherFirstName,
+        motherSecondName,
+        motherFirstLastname,
+        motherSecondLastname,
+        motherBirthdate,
+        motherBirthCountry,
+        motherBirthDepartment,
+        motherBirthCity
+    } = req.body;
+
+    // Crear un nuevo nodo "mother" en Neo4j
+    const result = await neo4j_calls.update_mother(
+        motherDocumentType,
+        motherDocumentNumber,
+        motherFirstName,
+        motherSecondName,
+        motherFirstLastname,
+        motherSecondLastname,
+        motherBirthdate,
+        motherBirthCountry,
+        motherBirthDepartment,
+        motherBirthCity
+    );
+
+    // Enviar respuesta de éxito con el resultado del query
+    res.status(200).send(result);
+});
+
+router.delete('/neo4j_delete_mother/:documentNumber', async function (req, res, next) {
+    const documentNumber = req.params.documentNumber;
+
+    try {
+        await neo4j_calls.delete_mother(documentNumber);
+        res.status(200).send(`Node with documentNumber"${documentNumber}" has been deleted successfully.`);
+    } catch (error) {
+        res.status(500).send(`Error deleting node with documentNumber "${documentNumber}": ${error}`);
+    }
+});
+
 
 module.exports = router;
+
