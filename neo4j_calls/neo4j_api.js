@@ -65,3 +65,42 @@ exports.create_mother = async function (documentType, documentNumber, firstName,
     }
     return mother.records[0].get(0).properties;
 };
+
+exports.update_mother = async function (documentType, documentNumber, firstName, secondName, firstLastname, secondLastname, birthdate, birthCountry, birthDepartment, birthCity) {
+    let session = driver.session();
+    let mother = "No Mother Was Created";
+    try {
+        mother = await session.run('MERGE (n:mother {documentType: $docType, documentNumber: $docNum, firstName: $fName, secondName: $sName, firstLastname: $fLastname, secondLastname: $sLastname, birthdate: $birthdate, birthCountry: $birthCountry, birthDepartment: $birthDepartment, birthCity: $birthCity}) RETURN n', {
+            docType: documentType,
+            docNum: documentNumber,
+            fName: firstName,
+            sName: secondName,
+            fLastname: firstLastname,
+            sLastname: secondLastname,
+            birthdate: birthdate,
+            birthCountry: birthCountry,
+            birthDepartment: birthDepartment,
+            birthCity: birthCity
+        });
+    }
+    catch (err) {
+        console.error(err);
+        return mother;
+    }
+    return mother.records[0].get(0).properties;
+};
+
+
+exports.delete_mother = async function (documentNumber) {
+    let session = driver.session();
+    try {
+        await session.run('MATCH (n:mother {documentNumber: $docNum}) DELETE n', {
+            docNum: documentNumber
+        });
+        console.log(`Node with firstName "${documentNumber}" has been deleted successfully.`);
+    } catch (error) {
+        console.log(`Error deleting node with firstName "${documentNumber}": ${error}`);
+    } finally {
+        await session.close();
+    }
+}
