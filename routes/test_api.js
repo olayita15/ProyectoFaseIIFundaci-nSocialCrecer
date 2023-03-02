@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const neo4j_calls = require('./../neo4j_calls/neo4j_api');
 
+
 router.get('/', async function (req, res, next) {
     res.status(200).send("Root Response from :8080/test_api")
     return 700000;
@@ -67,38 +68,24 @@ router.post('/neo4j_post_mother', async function (req, res, next) {
 });
 
 
-router.put('/neo4j_update_mother', async function (req, res, next) {
-    // Obtener parámetros del cuerpo de la solicitud POST
-    const {
-        motherDocumentType,
-        motherDocumentNumber,
-        motherFirstName,
-        motherSecondName,
-        motherFirstLastname,
-        motherSecondLastname,
-        motherBirthdate,
-        motherBirthCountry,
-        motherBirthDepartment,
-        motherBirthCity
-    } = req.body;
-
-    // Crear un nuevo nodo "mother" en Neo4j
-    const result = await neo4j_calls.update_mother(
-        motherDocumentType,
-        motherDocumentNumber,
-        motherFirstName,
-        motherSecondName,
-        motherFirstLastname,
-        motherSecondLastname,
-        motherBirthdate,
-        motherBirthCountry,
-        motherBirthDepartment,
-        motherBirthCity
-    );
-
-    // Enviar respuesta de éxito con el resultado del query
+router.get('/neo4j_get_mother/:documentNumber', async function(req, res, next) {
+    const documentNumber = req.params.documentNumber;
+    const result = await neo4j_calls.get_mother_by_document_number(documentNumber);
     res.status(200).send(result);
-});
+  });
+
+router.put('/neo4j_update_mother/:documentNumber/:firstName', async function (req, res, next) {
+    const documentNumber = req.params.documentNumber;
+    const firstName = req.params.firstName;
+    const updatedData = req.body;
+  
+    try {
+      const result = await neo4j_calls.update_mother(documentNumber, firstName, updatedData);
+      res.status(200).send(result);
+    } catch (error) {
+      res.status(500).send(`Error updating mother with documentNumber "${documentNumber}" and firstName "${firstName}": ${error}`);
+    }
+  });
 
 router.delete('/neo4j_delete_mother/:documentNumber', async function (req, res, next) {
     const documentNumber = req.params.documentNumber;
